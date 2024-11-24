@@ -1,0 +1,32 @@
+REPORT z_sales_order_report.
+
+PARAMETERS: p_sales_org TYPE vbak_vkorg,  
+            p_date_from TYPE vbak_erdat,  
+            p_date_to TYPE vbak_erdat.    
+
+DATA: lt_sales_orders TYPE TABLE OF vbak,  
+      lt_fieldcat TYPE slis_t_fieldcat_alv.  
+
+START-OF-SELECTION.
+
+  " Select sales orders based on user input
+  SELECT * FROM vbak
+    WHERE vkorg = p_sales_org
+      AND erdat BETWEEN p_date_from AND p_date_to
+    INTO TABLE lt_sales_orders.
+
+  IF sy-subrc <> 0.
+    WRITE: / 'No sales orders found.'.
+    EXIT.
+  ENDIF.
+
+  " ALV grid display
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+      i_structure_name = 'VBAK'
+    TABLES
+      t_outtab = lt_sales_orders.
+
+END-OF-SELECTION.
+
+
